@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hospital Management System - Admin Login</title>
+
+  <style>
+    /* =========
+       THEME (easy to modify)
+       ========= */
+    :root{
+      --bg: #ffffff;
+      --header: #bfbfbf;
+      --panel: #d8d8d8;
+      --panel-2: #bdbdbd;
+      --text: #111;
+      --danger: #e00000;
+
+      --menu-blue: #2aa8d6;
+
+      /* layout tuning */
+      --side-pad: clamp(14px, 3vw, 34px);
+      --header-radius: clamp(26px, 3.2vw, 44px);
+      --card-radius: clamp(18px, 2.2vw, 26px);
+
+      --shadow: 0 14px 30px rgba(0,0,0,.18);
+      --inner-shadow: inset 0 1px 0 rgba(255,255,255,.55);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* =========
+       FULL-PAGE APP (desktop fills entire page)
+       ========= */
+    .app{
+      min-height: 100vh;
+      width: 100%;
+      position: relative;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+
+    /* Header: full-bleed across viewport */
+    .header{
+      height: clamp(210px, 30vh, 340px);
+      background: var(--header);
+      border-bottom-left-radius: var(--header-radius);
+      border-bottom-right-radius: var(--header-radius);
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    /* Menu button stays near top-right edge like screenshot */
+    .menu-btn{
+      position: absolute;
+      right: var(--side-pad);
+      top: clamp(10px, 2vh, 18px);
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+      background: transparent;
+      border: 0;
+      padding: 6px 8px;
+      cursor: pointer;
+      color: var(--text);
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .menu-icon{
+      width: clamp(32px, 3.2vw, 40px);
+      height: clamp(32px, 3.2vw, 40px);
+      border-radius: 50%;
+      background: var(--menu-blue);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 6px 14px rgba(0,0,0,.18);
+    }
+    .menu-icon .lines{
+      width: clamp(15px, 1.6vw, 18px);
+      height: clamp(9px, 1.0vw, 11px);
+      position: relative;
+    }
+    .menu-icon .lines::before,
+    .menu-icon .lines::after,
+    .menu-icon .lines span{
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #fff;
+      border-radius: 2px;
+    }
+    .menu-icon .lines::before{ top: 0; }
+    .menu-icon .lines span{ top: 50%; transform: translateY(-50%); }
+    .menu-icon .lines::after{ bottom: 0; }
+
+    .menu-label{
+      font-size: clamp(13px, 1.1vw, 15px);
+      line-height: 1;
+    }
+
+    /* Avatar overlaps header + content */
+    .avatar{
+      width: clamp(92px, 10vw, 140px);
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      background: #cfd7ef;
+      position: absolute;
+      left: 50%;
+      bottom: calc(clamp(92px, 10vw, 140px) / -2);
+      transform: translateX(-50%);
+      box-shadow: 0 12px 24px rgba(0,0,0,.14);
+    }
+
+    /* =========
+       CONTENT
+       ========= */
+    .content{
+      flex: 1 1 auto;
+      padding: calc(clamp(92px, 10vw, 140px) / 2 + 22px) var(--side-pad) 18px;
+      display: grid;
+      justify-items: center;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .title{
+      text-align: center;
+      font-size: clamp(18px, 2.1vw, 30px);
+      font-weight: 500;
+      margin: 0;
+    }
+
+    /* Card stays centered; on desktop it grows but remains readable */
+    .card{
+      width: min(92vw, 620px);
+      background: var(--panel);
+      border-radius: var(--card-radius);
+      padding: clamp(14px, 1.6vw, 20px);
+      box-shadow: var(--inner-shadow);
+    }
+
+    .card h2{
+      margin: 4px 0 14px;
+      text-align: center;
+      font-size: clamp(16px, 1.6vw, 22px);
+      font-weight: 700;
+    }
+
+    .row{
+      display: grid;
+      grid-template-columns: clamp(76px, 9vw, 110px) 1fr;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .row label{
+      font-size: clamp(13px, 1.1vw, 16px);
+      white-space: nowrap;
+    }
+
+    .pill-input{
+      width: 100%;
+      height: clamp(36px, 4.2vw, 44px);
+      border-radius: 999px;
+      border: 0;
+      outline: none;
+      padding: 0 14px;
+      background: var(--panel-2);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,.18);
+      font-size: clamp(13px, 1.1vw, 16px);
+    }
+
+    .help{
+      text-align: center;
+      color: var(--danger);
+      font-size: clamp(13px, 1.1vw, 16px);
+      margin: 12px 0 10px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .btn{
+      display: block;
+      width: clamp(210px, 40%, 320px);
+      margin: 0 auto;
+      height: clamp(40px, 4.6vw, 48px);
+      border-radius: 999px;
+      background: var(--panel-2);
+      border: 1px solid rgba(0,0,0,.22);
+      font-size: clamp(14px, 1.2vw, 17px);
+      cursor: pointer;
+    }
+    .btn:active{ transform: translateY(1px); }
+
+    /* =========
+       FOOTER (full-bleed bar)
+       ========= */
+    .footer{
+      flex: 0 0 auto;
+      background: var(--header);
+      padding: clamp(12px, 1.8vh, 18px) 10px;
+      text-align: center;
+    }
+    .footer .em{
+      color: var(--danger);
+      font-weight: 800;
+      font-size: clamp(14px, 1.2vw, 18px);
+      margin-bottom: 2px;
+    }
+    .footer .copy{
+      color: #111;
+      font-weight: 500;
+      font-size: clamp(13px, 1.0vw, 16px);
+    }
+
+    /* =========
+       OVERLAY MENU (above everything)
+       ========= */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+    }
+    .overlay.active{ pointer-events: auto; }
+
+    .backdrop{
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,.28);
+      opacity: 0;
+      transition: opacity .18s ease;
+    }
+    .overlay.active .backdrop{ opacity: 1; }
+
+    .menu-panel{
+      position: absolute;
+      top: clamp(56px, 8vh, 84px);
+      right: var(--side-pad);
+      width: min(86vw, 380px);
+      background: #e0e0e0;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      padding: 14px 14px 10px;
+      transform: translateY(-10px);
+      opacity: 0;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .overlay.active .menu-panel{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .menu-list{
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+      font-size: clamp(13px, 1.1vw, 16px);
+    }
+    .menu-item{
+      color: #111;
+      text-decoration: none;
+      display: block;
+      padding: 4px 2px;
+    }
+    .menu-section{
+      margin-top: 6px;
+      color: #111;
+      font-weight: 700;
+    }
+    .submenu{
+      list-style: none;
+      padding-left: 18px;
+      margin: 6px 0 0;
+      display: grid;
+      gap: 6px;
+      color: #111;
+      font-weight: 500;
+    }
+
+    /* Optional: On very wide desktops, keep content pleasantly centered and not too stretched */
+    @media (min-width: 1200px){
+      .content{
+        padding-left: max(var(--side-pad), 48px);
+        padding-right: max(var(--side-pad), 48px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app" aria-label="Hospital Management System Admin Login">
+    <header class="header">
+      <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuOverlay">
+        <div class="menu-icon" aria-hidden="true">
+          <div class="lines"><span></span></div>
+        </div>
+        <div class="menu-label">Menu</div>
+      </button>
+
+      <div class="avatar" aria-hidden="true"></div>
+    </header>
+
+    <section class="content">
+      <h1 class="title">Hospital Management System</h1>
+
+      <section class="card" aria-label="Admin Login">
+        <h2>Admin Login</h2>
+        <form action="/login" method="post">
+        <div class="row">
+          <label for="email">Email :</label>
+          <input id="email" name="email" class="pill-input" type="email" inputmode="email" autocomplete="username" />
+        </div>
+
+        <div class="row">
+          <label for="code">Code :</label>
+          <input id="code" name="password" class="pill-input" type="password" autocomplete="current-password" />
+        </div>
+
+        <a class="help" href="#" onclick="return false;">Any Issues&nbsp; trying to login ?</a>
+
+<!--        <button class="btn" type="submit">Secure Login</button>-->
+          <input type="submit"  class="btn" value="Secure Login">
+        </form>
+      </section>
+    </section>
+
+    <footer class="footer">
+      <div class="em">Report Emergency</div>
+      <div class="copy">Copy Right Protected</div>
+    </footer>
+
+    <!-- Overlay Menu -->
+    <div class="overlay" id="menuOverlay" aria-hidden="true">
+      <div class="backdrop" id="backdrop" aria-label="Close menu"></div>
+
+      <nav class="menu-panel" aria-label="Menu">
+        <ul class="menu-list">
+          <li><a class="menu-item" href="#" onclick="return false;">Home</a></li>
+          <li><a class="menu-item" href="#" onclick="return false;">Notices</a></li>
+          <li><a class="menu-item" href="#" onclick="return false;">Contact Us</a></li>
+          <li><a class="menu-item" href="#" onclick="return false;">Support - Teams</a></li>
+
+          <li class="menu-section">Hot Lines :</li>
+          <li>
+            <ul class="submenu">
+              <li><a class="menu-item" href="#" onclick="return false;">Police Station Help Desk</a></li>
+              <li><a class="menu-item" href="#" onclick="return false;">Emergency Ambulance</a></li>
+            </ul>
+          </li>
+
+          <li class="menu-section">Health Schemes</li>
+          <li><a class="menu-item" href="#" onclick="return false;">Bihar Govt. Health&nbsp; Support Info.</a></li>
+        </ul>
+      </nav>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const btn = document.getElementById('menuBtn');
+      const overlay = document.getElementById('menuOverlay');
+      const backdrop = document.getElementById('backdrop');
+
+      function setOpen(isOpen){
+        overlay.classList.toggle('active', isOpen);
+        overlay.setAttribute('aria-hidden', String(!isOpen));
+        btn.setAttribute('aria-expanded', String(isOpen));
+      }
+
+      btn.addEventListener('click', () => {
+        setOpen(!overlay.classList.contains('active'));
+      });
+
+      backdrop.addEventListener('click', () => setOpen(false));
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') setOpen(false);
+      });
+    })();
+  </script>
+</body>
+</html>
